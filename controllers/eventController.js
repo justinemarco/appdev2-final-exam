@@ -1,4 +1,7 @@
 const Event = require('../models/Event');
+const pug = require('pug');
+const path = require('path');
+const transporter = require('../config/nodemailer');
 
 const getAllEvents = async (req, res) => {
   try {
@@ -22,6 +25,24 @@ const createEvent = async (req, res) => {
     });
 
     await event.save();
+
+    const html = pug.renderFile(
+      path.join(__dirname, '../emails/eventCreated.pug'),
+      {
+        name: req.user.name,
+        title: event.title,
+        location: event.location,
+        date: new Date(event.date).toLocaleString()
+      }
+    );
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: req.user.email,
+      subject: 'Your Event Has Been Created!',
+      html
+    });
+
 
     res.status(201).json(event);
   } catch (err) {
