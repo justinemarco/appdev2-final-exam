@@ -18,7 +18,7 @@ const createEvent = async (req, res) => {
       location,
       date,
       description,
-      userId: req.user._id // from JWT
+      userId: req.user._id 
     });
 
     await event.save();
